@@ -107,6 +107,37 @@
           text-decoration: none;
         }
 
+        .content-sidebar {
+          background: #ffffff;
+          width: 100%;
+          height: 110px;
+          padding: 3px 3px 3px 3px;
+          border: 1px solid transparent;
+          transition: .2s;
+          margin: 5px 0px 5px 0px;
+        }
+
+        .content-sidebar a {
+          text-decoration: none;
+        }
+
+        .content-sidebar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .content-sidebar:hover {
+          border: 1px solid #f26e2c;
+        }
+
+        .content-sidebar p {
+          font-size: 12px;
+        }
+        .content-sidebar small {
+          font-size: 10px;
+        }
+
         /* medium */
         @media screen and (max-width: 991px){
       
@@ -181,7 +212,7 @@
 
 
   <div class="row mt-3">
-    <div class="col-12 col-sm-12 col-md-12 col-lg-7">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-8">
 
       <div class="widget-header mb-1">
         <a href="<?= base_url('anime/recommendation') ?>">Recommendation Anime</a>
@@ -208,6 +239,23 @@
       </div>
 
     </div>
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-4">
+      <div class="widget-header mb-1">
+        <a href="<?= base_url('anime/top') ?>">Most Top Anime</a>
+      </div>
+
+
+      <div id="load_sidebar_content" class="d-none">
+      </div>
+
+      <p class="placeholder-glow" id="loading_sidebar_content">
+        <span class="placeholder col-12"></span>
+        <span class="placeholder col-12"></span>
+        <span class="placeholder col-12"></span>
+      </p>
+
+    </div>
   </div>
 
 </div>
@@ -218,6 +266,7 @@
     get_list_season_now();
     get_recommendation_anime();
     get_recommendation_manga();
+    get_top_anime();
   })
 
   function slider(container, desktop, tab, mobile){
@@ -391,6 +440,36 @@
     })
   }
 
+  function get_top_anime(){
+    $.ajax({
+      url: 'https://api.jikan.moe/v4/top/anime',
+      type: 'GET',
+      dataType: 'JSON',
+      success: function(d){
+        if(d.status == 400){
+          alert('Error');
+        } else {
+          let data = d.data;
+          let limit_data = data.slice(0, 5);
+          let html = '';
+
+          for(let i = 0; i < limit_data.length; i++){
+            const img = limit_data[i].images.webp.image_url;
+            const member = limit_data[i].members;
+            const new_member = member.toLocaleString();
+
+            html += '<div class="content-sidebar"><a href=""><div class="row" style="height: 100%"><div class="col-3" style="height: 100%"><img src="'+img+'" alt=""></div><div class="col-9" style="height: 100%"><h4 class="float-end"><span class="badge bg-danger">'+limit_data[i].score+'</span></h4><p><b>'+limit_data[i].title+'</b></p><small class="text-secondary">'+limit_data[i].type+', '+limit_data[i].season+' '+limit_data[i].year+'</small> <br><small class="text-secondary">'+new_member+' members</small></div></div></a></div>';
+
+          }
+
+          $('#load_sidebar_content').html(html);
+          $('#load_sidebar_content').removeClass('d-none');
+          $('#loading_sidebar_content').addClass('d-none');
+          
+        }
+      }
+    })
+  }
 
   
 
